@@ -1,0 +1,11 @@
+body {
+  background: url(http://localhost:3000/images/67935625649bd1024a13c0e7f375cbe7.jpg) no-repeat center center;
+  color: yellow;
+}
+body div {
+  text-align: center;
+  font-size: 40px;
+  -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+}
+

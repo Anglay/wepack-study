@@ -1,0 +1,92 @@
+let path = require("path")
+let webpack = require("webpack")
+let HtmlWebpackPlugin = require("html-webpack-plugin")
+let MiniCssExtractPlugin = require("mini-css-extract-plugin")
+let OptimizeCss = require("optimize-css-assets-webpack-plugin")
+let UglifyjsPlugin = require("uglifyjs-webpack-plugin")
+
+module.exports = {
+    mode:"development",//development || production
+    entry:{
+        "js/index":"./src/js/index.js"
+    },
+    output:{
+        filename:"[name].min.js",
+        path:path.resolve(__dirname,"dist"),
+        publicPath:"http://localhost:3000/"
+    },
+    devServer:{
+        port :3000,
+        progress:true,
+        open:false,
+        compress:true,
+        contentBase:"./dist"
+    },
+    module:{
+        rules:[
+            {
+                test:/\.css$/,
+                //loader的顺序是从右向左执行
+                use:[MiniCssExtractPlugin.loader,'css-loader','postcss-loader']
+            },
+            {
+                test:/\.less$/,
+                use:[MiniCssExtractPlugin.loader,'css-loader','postcss-loader','less-loader']
+            },
+            {
+                test:/\.js$/,
+                use:[{
+                    loader:'babel-loader',
+                    options:{
+                        presets:[
+                            '@babel/preset-env'
+                        ],
+                        plugins:[
+                            ['@babel/plugin-proposal-decorators',{"legacy":true}],
+                            ['@babel/plugin-proposal-class-properties',{"loose":true}]
+                        ]
+                    }
+                }]
+            },{
+                test:/\.png|jpg|.gif$/,
+                use:{
+                    loader:'url-loader',
+                    options:{
+                        limit:2048,
+                        outputPath:"images/"
+                    }
+                }
+            },{
+                test:/\.html$/,
+                use:["html-withimg-loader"]
+            }
+        ]
+    },
+    optimization:{
+        minimizer:[
+            new OptimizeCss(),
+            new UglifyjsPlugin({
+                cache:true,
+                parallel: true,
+                sourceMap:true
+            })
+        ]
+    },
+    plugins:[
+        new HtmlWebpackPlugin({
+            template:'./src/index.html',
+            filename:'index.html',
+            minify:{
+                removeAttributeQuotes:true,
+                collapseWhitespace:true
+            },
+            hash:true
+        }),
+        new MiniCssExtractPlugin({
+            filename:"css/main.css"
+        }),
+        new webpack.ProvidePlugin({
+            $:"jquery"
+        })
+    ]
+}
